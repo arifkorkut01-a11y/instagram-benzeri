@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Set Prop - Ultimate Director's Cut (DM Avatar Customization)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ig: {
+                            darkbg: '#000000', darkcard: '#121212', darkborder: '#262626',
+                            lightbg: '#ffffff', lightcard: '#fafafa', lightborder: '#dbdbdb',
+                            blue: '#0095f6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes pulse-heart { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .animate-heart { animation: pulse-heart 0.3s ease-in-out; }
+        input:focus { outline: none; }
+    </style>
+</head>
+<body class="bg-black sm:bg-gray-900 text-black dark:text-white font-sans antialiased select-none flex justify-center items-center min-h-screen m-0 p-0 overflow-hidden">
+
+    <!-- Phone Wrapper Container -->
+    <div id="app-container" class="w-full h-screen sm:w-[414px] sm:h-[844px] sm:rounded-[40px] sm:shadow-2xl bg-white dark:bg-ig-darkbg flex flex-col relative overflow-hidden border-0 sm:border-8 sm:border-gray-800 transition-colors duration-300">
+        
+        <!-- TOP APP BAR -->
+        <header id="top-bar" class="h-14 border-b border-gray-200 dark:border-ig-darkborder flex items-center justify-between px-4 sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-30 flex-shrink-0">
+            <!-- BRAND LOGO ONLY (SECRET ADMIN TRIGGER) -->
+            <div class="flex items-center space-x-2 cursor-pointer h-full py-2" onclick="triggerSecretAdmin()">
+                <div class="w-8 h-8 rounded-[9px] border-[2.5px] border-black dark:border-white flex items-center justify-center relative flex-shrink-0">
+                    <div class="w-3.5 h-3.5 rounded-full border-[2.5px] border-black dark:border-white"></div>
+                    <div class="w-1 h-1 bg-black dark:bg-white rounded-full absolute top-[2px] right-[2px]"></div>
+                </div>
+            </div>
+            <!-- TOP RIGHT ICONS -->
+            <div class="flex items-center space-x-5 text-2xl">
+                <button onclick="switchTab('activity')" class="relative hover:opacity-75 transition">
+                    <i class="fa-regular fa-heart"></i>
+                    <span id="top-heart-badge" class="absolute top-0 right-0 bg-red-500 w-2.5 h-2.5 rounded-full hidden border-2 border-white dark:border-black"></span>
+                </button>
+                <button onclick="openDirectMessages()" class="relative hover:opacity-75 transition">
+                    <i class="fa-brands fa-facebook-messenger"></i>
+                    <span id="dm-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN SCROLLABLE CONTENT AREA -->
+        <main id="main-content" class="flex-1 overflow-y-auto no-scrollbar relative pb-16">
+            
+            <!-- SECTION 1: FEED -->
+            <div id="view-home" class="tab-view">
+                <div class="py-3 border-b border-gray-200 dark:border-ig-darkborder overflow-x-auto no-scrollbar flex space-x-3 px-4 bg-white dark:bg-black">
+                    <div class="flex flex-col items-center flex-shrink-0 cursor-pointer" onclick="showToast('Kamera kapalı')">
+                        <div class="relative w-16 h-16 rounded-full p-[2px] bg-gray-200 dark:bg-gray-800">
+                            <img id="feed-my-avatar" src="" class="w-full h-full object-cover rounded-full border-2 border-white dark:border-black">
+                            <div class="absolute bottom-0 right-0 bg-ig-blue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-white dark:border-black">+</div>
+                        </div>
+                        <span class="text-xs mt-1 truncate w-16 text-center font-normal text-gray-500">Hikayen</span>
+                    </div>
+                    <div id="stories-tray-container" class="flex space-x-3"></div>
+                </div>
+                <div id="posts-feed-container" class="divide-y divide-gray-200 dark:divide-ig-darkborder pb-4"></div>
+            </div>
+
+            <!-- SECTION 2: SEARCH (ORGANİK DİNAMİK ARAMA) -->
+            <div id="view-search" class="tab-view hidden pb-10 bg-white dark:bg-black min-h-full flex flex-col">
+                <!-- Sabit Arama Çubuğu -->
+                <div class="px-4 py-2 sticky top-0 bg-white dark:bg-black z-20 flex items-center space-x-3 border-b border-transparent transition-all">
+                    <div class="relative flex-1 flex items-center bg-gray-100 dark:bg-zinc-800 rounded-xl transition-all h-10">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 text-gray-500 text-sm"></i>
+                        <input type="text" id="frontend-search-input" placeholder="Ara" class="w-full h-full bg-transparent text-sm pl-9 pr-4 rounded-xl" oninput="handleFrontendSearch()">
+                    </div>
+                </div>
+
+                <!-- Arama Sonuçları Alanı -->
+                <div id="search-active-view" class="flex-1 flex flex-col w-full">
+                    <div class="px-4 py-2 flex justify-between items-center border-b border-gray-200 dark:border-ig-darkborder">
+                        <span id="search-header-text" class="text-sm font-bold">Yakınlardakiler</span>
+                        <span id="search-clear-btn" class="text-xs text-ig-blue font-bold cursor-pointer" onclick="clearRecentSearches()">Tümünü Temizle</span>
+                    </div>
+                    <div id="search-results-container" class="flex-1 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: TARGET PROFILE (HEDEF PROFİL) -->
+            <div id="view-target-profile" class="tab-view hidden pb-10 bg-white dark:bg-black min-h-full">
+                <div class="px-4 py-3 flex items-center border-b border-gray-200 dark:border-ig-darkborder sticky top-0 bg-white dark:bg-black z-10">
+                    <button onclick="switchTab('search')" class="text-2xl mr-4"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="text-lg font-bold flex-1" id="tp-username-header">...</h2>
+                    <i class="fa-solid fa-ellipsis text-xl"></i>
+                </div>
+                
+                <div class="px-4 pt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <img id="tp-avatar" src="" class="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-ig-darkborder p-0.5">
+                        <div class="flex justify-around flex-1 ml-6 text-center">
+                            <div><div class="font-bold text-base" id="tp-posts-count">0</div><div class="text-xs text-gray-500">Gönderi</div></div>
+                            <div><div class="font-bold text-base" id="tp-followers-count">0</div><div class="text-xs text-gray-500">Takipçi</div></div>
+                            <div><div class="font-bold text-base" id="tp-following-count">0</div><div class="text-xs text-gray-500">Takip</div></div>
+                        </div>
+                    </div>
+                    <div class="text-sm mb-4">
+                        <span class="font-semibold block" id="tp-fullname">...</span>
+                        <p class="text-black dark:text-white mt-0.5 whitespace-pre-line" id="tp-bio">...</p>
+                    </div>
+                    
+                    <div class="flex space-x-2 mb-4" id="tp-action-buttons"></div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-ig-darkborder flex justify-around text-gray-400">
+                    <button class="flex-1 py-3 border-b-2 border-black dark:border-white text-black dark:text-white text-base flex justify-center"><i class="fa-solid fa-table-cells"></i></button>
+                    <button class="flex-1 py-3 text-base flex justify-center"><i class="fa-solid fa-clapperboard"></i></button>
+                    <button class="flex-1 py-3 text-base flex justify-center"><i class="fa-regular fa-user"></i></button>
+                </div>
+                <div id="tp-content-area" class="w-full"></div>
+            </div>
+
+            <!-- SECTION 4: ACTIVITY (BİLDİRİMLER) -->
+            <div id="view-activity" class="tab-view hidden pb-10">
+                <div class="px-4 py-3 border-b border-gray-200 dark:border-ig-darkborder sticky top-0 bg-white dark:bg-black z-10">
+                    <h2 class="text-xl font-bold">Bildirimler</h2>
+                </div>
+                <div id="activity-list" class="flex-1 overflow-y-auto pt-2"></div>
+            </div>
+
+            <!-- SECTION 5: PROFILE (KENDİ PROFİLİM) -->
+            <div id="view-profile" class="tab-view hidden pb-10">
+                <div class="px-4 pt-3">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center space-x-1">
+                            <h2 class="text-lg font-bold" id="profile-username-header">azat_official</h2>
+                            <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                        </div>
+                        <div class="flex space-x-5 text-2xl">
+                            <button onclick="showToast('Oluşturma kilitli')"><i class="fa-regular fa-square-plus"></i></button>
+                            <button onclick="showToast('Ayarlar kilitli')"><i class="fa-solid fa-bars"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="relative">
+                            <img id="profile-avatar-img" src="" class="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-ig-darkborder p-0.5">
+                        </div>
+                        <div class="flex justify-around flex-1 ml-6 text-center">
+                            <div><div class="font-bold text-base" id="profile-posts-count">0</div><div class="text-xs text-gray-500">Gönderi</div></div>
+                            <div><div class="font-bold text-base" id="profile-followers-count">0</div><div class="text-xs text-gray-500">Takipçi</div></div>
+                            <div><div class="font-bold text-base" id="profile-following-count">0</div><div class="text-xs text-gray-500">Takip</div></div>
+                        </div>
+                    </div>
+                    <div class="text-sm mb-3">
+                        <span class="font-semibold block" id="profile-fullname">...</span>
+                        <p class="text-black dark:text-white mt-0.5 whitespace-pre-line" id="profile-bio-text">...</p>
+                    </div>
+                    <div class="flex space-x-2 mb-4">
+                        <button class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-xs font-semibold py-1.5 rounded-lg border border-gray-300 dark:border-ig-darkborder">Profili Düzenle</button>
+                        <button class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-xs font-semibold py-1.5 rounded-lg border border-gray-300 dark:border-ig-darkborder">Profili Paylaş</button>
+                        <button class="bg-gray-200 dark:bg-ig-darkcard px-3 rounded-lg border border-gray-300 dark:border-ig-darkborder"><i class="fa-solid fa-user-plus text-xs"></i></button>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-ig-darkborder flex justify-around text-gray-400">
+                    <button class="flex-1 py-3 border-b-2 border-black dark:border-white text-black dark:text-white text-base flex justify-center"><i class="fa-solid fa-table-cells"></i></button>
+                    <button class="flex-1 py-3 text-base flex justify-center"><i class="fa-solid fa-clapperboard"></i></button>
+                    <button class="flex-1 py-3 text-base flex justify-center"><i class="fa-regular fa-user"></i></button>
+                </div>
+                <div id="profile-grid-container" class="grid grid-cols-3 gap-0.5"></div>
+            </div>
+
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="h-12 border-t border-gray-200 dark:border-ig-darkborder bg-white dark:bg-black absolute bottom-0 left-0 right-0 z-30 flex items-center justify-around px-2 text-2xl flex-shrink-0 pb-1">
+            <button onclick="switchTab('home')" class="nav-btn text-black dark:text-white p-2 transition-transform active:scale-90" data-tab="home"><i class="fa-solid fa-house"></i></button>
+            <button onclick="switchTab('search')" class="nav-btn text-gray-500 p-2 transition-transform active:scale-90" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button onclick="showToast('Video sekmesi kapalı')" class="nav-btn text-gray-500 p-2 transition-transform active:scale-90"><i class="fa-solid fa-clapperboard"></i></button>
+            
+            <button onclick="switchTab('activity')" class="nav-btn text-gray-500 p-2 transition-transform active:scale-90 relative" data-tab="activity">
+                <i class="fa-regular fa-heart"></i>
+                <span id="bottom-heart-badge" class="absolute top-1.5 right-1.5 bg-red-500 w-2.5 h-2.5 rounded-full hidden border-2 border-white dark:border-black"></span>
+            </button>
+            
+            <button onclick="switchTab('profile')" class="nav-btn text-gray-500 p-2 transition-transform active:scale-90" data-tab="profile">
+                <img id="nav-avatar-img" src="" class="w-6 h-6 rounded-full object-cover border border-gray-400">
+            </button>
+        </nav>
+
+        <!-- ==================== GİZLİ REJİ / SET YÖNETİM PANELİ ==================== -->
+        <div id="settings-modal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-50 hidden flex flex-col transition-transform duration-300 transform translate-y-full">
+            <div class="bg-red-600 text-white p-3 flex justify-between items-center shadow-md">
+                <div>
+                    <h3 class="font-bold text-sm"><i class="fa-solid fa-video"></i> REJİ PANELİ</h3>
+                    <span class="text-[10px] opacity-80">Değişiklikler anında cihaza kaydedilir.</span>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="toggleFullScreen()" class="bg-black/30 px-3 py-1 rounded text-xs font-bold"><i class="fa-solid fa-expand"></i> Tam Ekran</button>
+                    <button onclick="closeSettingsModal()" class="text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="flex overflow-x-auto no-scrollbar border-b border-zinc-300 dark:border-zinc-800 bg-gray-100 dark:bg-zinc-950 text-xs font-bold shadow-sm flex-shrink-0">
+                <button onclick="switchSettingsTab('searchset')" class="settings-tab-btn px-4 py-3 text-red-600 border-b-2 border-red-600 whitespace-nowrap" data-target="set-searchset">Arama Ağı</button>
+                <button onclick="switchSettingsTab('target')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-target">2. Profil (Hedef)</button>
+                <button onclick="switchSettingsTab('profile')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-profile">Ana Profil</button>
+                <button onclick="switchSettingsTab('notif')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-notif">Bildirimler</button>
+                <button onclick="switchSettingsTab('feed')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-feed">Ana Akış</button>
+                <button onclick="switchSettingsTab('myposts')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-myposts">Kendi Gönderim</button>
+                <button onclick="switchSettingsTab('stories')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-stories">Hikayeler</button>
+                <button onclick="switchSettingsTab('dms')" class="settings-tab-btn px-4 py-3 text-gray-500 whitespace-nowrap" data-target="set-dms">Mesajlar (DM)</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pb-10">
+                
+                <!-- 1. ARAMA AĞI -->
+                <div id="set-searchset" class="settings-section p-4 space-y-3">
+                    <p class="text-xs text-gray-500 mb-2">Not: Arka planda 30+ gerçekçi sahte hesap var. Arama yapıldığında <b>EN ÜSTTE</b> çıkmasını istediğin ve tıklandığında açılacak olan <b>Hedef Kişi'yi</b> buradan ekle.</p>
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <span class="font-bold block">Arama Sonucuna Yeni Hedef Ekle</span>
+                        <input type="text" id="adm-srch-user" placeholder="Kullanıcı Adı (Örn: plaza_perisi)" class="w-full p-2 rounded bg-white dark:bg-black font-bold text-ig-blue">
+                        <input type="text" id="adm-srch-full" placeholder="İsim Soyisim (Örn: Plaza Perisi)" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black flex items-center space-x-2">
+                            <label class="text-[10px] text-gray-500 w-16">Avatar:</label>
+                            <input type="file" accept="image/*" class="w-full text-[10px]" onchange="handleImageUpload(event, 'adm-srch-img')">
+                            <input type="hidden" id="adm-srch-img">
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="adm-srch-istarget" checked class="w-4 h-4 text-ig-blue"> 
+                            <label>Tıklayınca 2. Profile (Hedef Profil) Gitsin</label>
+                        </div>
+                        <button onclick="adminAddSearchResult()" class="w-full bg-green-600 text-white py-2 rounded font-bold">Arama Listesine Ekle</button>
+                    </div>
+                    <div id="admin-search-list" class="space-y-2 mt-4"></div>
+                </div>
+
+                <!-- 2. HEDEF PROFIL (TARGET) -->
+                <div id="set-target" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-300 dark:border-blue-700 space-y-3">
+                        <span class="block font-bold text-blue-600 dark:text-blue-400 mb-1 text-xs"><i class="fa-solid fa-bullseye"></i> 2. PROFİL DAVRANIŞ AYARLARI</span>
+                        <div class="flex items-center space-x-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="adm-tp-private" class="w-4 h-4" onchange="updateTargetProfileLive()">
+                            <label>Gizli Hesap (Kilit İkonu Çıkar)</label>
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 text-xs mb-1">Takip Butonu Başlangıç Durumu</label>
+                            <select id="adm-tp-state" class="w-full p-2 rounded bg-white dark:bg-black font-bold border border-gray-300 dark:border-zinc-600" onchange="updateTargetProfileLive()">
+                                <option value="0">Takip Et (Mavi Buton)</option>
+                                <option value="1">İstek Gönderildi (Gri Buton)</option>
+                                <option value="2">Takip Ediliyor (Gri Buton)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <h4 class="font-bold text-gray-700 dark:text-gray-300">Hedef Profil Bilgileri</h4>
+                        <div><label class="block text-gray-500 mb-1 text-xs">Kullanıcı Adı</label><input type="text" id="tp-inp-user" class="w-full p-1.5 rounded bg-white dark:bg-black font-bold" oninput="updateTargetProfileLive()"></div>
+                        <div><label class="block text-gray-500 mb-1 text-xs">İsim Soyisim</label><input type="text" id="tp-inp-full" class="w-full p-1.5 rounded bg-white dark:bg-black" oninput="updateTargetProfileLive()"></div>
+                        <div><label class="block text-gray-500 mb-1 text-xs">Biyografi</label><textarea id="tp-inp-bio" class="w-full p-1.5 rounded bg-white dark:bg-black h-12" oninput="updateTargetProfileLive()"></textarea></div>
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black">
+                            <label class="block text-[10px] mb-1 text-gray-500">Profil Fotoğrafı Seç</label>
+                            <input type="file" accept="image/*" class="w-full text-xs" onchange="handleImageUpload(event, 'tp-inp-avatar')">
+                            <input type="hidden" id="tp-inp-avatar" oninput="updateTargetProfileLive()">
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div><label class="block text-gray-500 mb-1 text-xs">Gönderi</label><input type="text" id="tp-inp-pcount" class="w-full p-1.5 rounded bg-white dark:bg-black text-center" oninput="updateTargetProfileLive()"></div>
+                            <div><label class="block text-gray-500 mb-1 text-xs">Takipçi</label><input type="text" id="tp-inp-fwer" class="w-full p-1.5 rounded bg-white dark:bg-black text-center" oninput="updateTargetProfileLive()"></div>
+                            <div><label class="block text-gray-500 mb-1 text-xs">Takip</label><input type="text" id="tp-inp-fwing" class="w-full p-1.5 rounded bg-white dark:bg-black text-center" oninput="updateTargetProfileLive()"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <span class="font-bold block text-sm">Hedef Profil Fotoğraf Izgarası (Grid)</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="file" accept="image/*" class="w-full text-[10px]" onchange="handleImageUpload(event, 'tp-new-post-img')">
+                            <input type="hidden" id="tp-new-post-img">
+                            <button onclick="addTPGridImage()" class="bg-ig-blue text-white px-3 py-1 rounded font-bold text-xs">Ekle</button>
+                        </div>
+                        <div id="tp-admin-grid-list" class="grid grid-cols-4 gap-1 mt-2"></div>
+                    </div>
+                </div>
+
+                <!-- 3. ANA PROFIL (MAIN PROFILE) -->
+                <div id="set-profile" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <div><label class="block text-gray-500 mb-1">Oyuncu Kullanıcı Adı</label><input type="text" id="inp-username" class="w-full p-2 rounded bg-white dark:bg-black font-bold text-red-500" oninput="updateProfileLive()"></div>
+                        <div><label class="block text-gray-500 mb-1">İsim Soyisim</label><input type="text" id="inp-fullname" class="w-full p-2 rounded bg-white dark:bg-black" oninput="updateProfileLive()"></div>
+                        <div><label class="block text-gray-500 mb-1">Biyografi</label><textarea id="inp-bio" class="w-full p-2 rounded bg-white dark:bg-black h-16" oninput="updateProfileLive()"></textarea></div>
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black">
+                            <label class="block text-[10px] mb-1 text-gray-500">Profil Fotoğrafı Seç</label>
+                            <input type="file" accept="image/*" class="w-full text-xs" onchange="handleImageUpload(event, 'inp-avatar')">
+                            <input type="hidden" id="inp-avatar" oninput="updateProfileLive()">
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div><label class="block text-gray-500 mb-1">Gönderi</label><input type="text" id="inp-pcount" class="w-full p-2 rounded bg-white dark:bg-black text-center" oninput="updateProfileLive()"></div>
+                            <div><label class="block text-gray-500 mb-1">Takipçi</label><input type="text" id="inp-followers" class="w-full p-2 rounded bg-white dark:bg-black text-center" oninput="updateProfileLive()"></div>
+                            <div><label class="block text-gray-500 mb-1">Takip</label><input type="text" id="inp-following" class="w-full p-2 rounded bg-white dark:bg-black text-center" oninput="updateProfileLive()"></div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2 pt-2">
+                        <button onclick="toggleDarkMode()" class="flex-1 bg-black text-white dark:bg-white dark:text-black py-2 rounded font-bold">Tema Değiştir</button>
+                        <button onclick="resetData()" class="flex-1 bg-red-600 text-white py-2 rounded font-bold">Sıfırla</button>
+                    </div>
+                </div>
+
+                <!-- 4. BİLDİRİMLER (NOTIFICATIONS) -->
+                <div id="set-notif" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-300 dark:border-red-700 space-y-3">
+                        <div class="flex items-center space-x-2 text-sm font-bold text-red-600 dark:text-red-400">
+                            <input type="checkbox" id="adm-notif-heart" class="w-4 h-4" onchange="updateNotificationsLive()">
+                            <label>Ekranda Kırmızı Nokta (Badge) Göster</label>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <span class="font-bold block">Yeni Bildirim Yolla</span>
+                        <input type="text" id="adm-notif-user" placeholder="Kullanıcı Adı" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <input type="text" id="adm-notif-text" placeholder="Eylem (Örn: fotoğrafını beğendi.)" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <input type="text" id="adm-notif-time" placeholder="Zaman (Örn: 2d)" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <button onclick="adminAddActivity()" class="w-full bg-green-600 text-white py-2 rounded font-bold">Bildirimi Gönder</button>
+                    </div>
+                    <div id="admin-notif-list" class="space-y-2 mt-4"></div>
+                </div>
+
+                <!-- 5. ANA AKIŞ (FEED POSTS) -->
+                <div id="set-feed" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700">
+                        <button onclick="openPostEditView(null, 'feed')" class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> BAŞKASI ADINA GÖNDERİ EKLE
+                        </button>
+                    </div>
+                    <h4 class="font-bold text-gray-500 border-b border-gray-300 dark:border-zinc-700 pb-1">Ana Akış Gönderileri</h4>
+                    <div id="admin-feed-posts-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 6. PROFİL GÖNDERİLERİ (MY POSTS) -->
+                <div id="set-myposts" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700">
+                        <button onclick="openPostEditView(null, 'profile')" class="w-full bg-blue-600 text-white py-2 rounded font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> KENDİ PROFİLİME GÖNDERİ EKLE
+                        </button>
+                    </div>
+                    <h4 class="font-bold text-gray-500 border-b border-gray-300 dark:border-zinc-700 pb-1">Senin Gönderilerin</h4>
+                    <div id="admin-my-posts-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 7. HIKAYELER (STORIES) -->
+                <div id="set-stories" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <span class="font-bold block">Yeni Hikaye Ekle</span>
+                        <input type="text" id="adm-story-user" placeholder="Kullanıcı Adı" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black text-[10px]">
+                            <label class="block font-bold mb-1 text-gray-500">Avatar Seç</label>
+                            <input type="file" accept="image/*" class="w-full" onchange="handleImageUpload(event, 'adm-story-avatar')">
+                            <input type="hidden" id="adm-story-avatar">
+                        </div>
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black text-[10px]">
+                            <label class="block font-bold mb-1 text-gray-500">Hikaye Görseli Seç</label>
+                            <input type="file" accept="image/*" class="w-full" onchange="handleImageUpload(event, 'adm-story-img')">
+                            <input type="hidden" id="adm-story-img">
+                        </div>
+                        <button onclick="adminAddStory()" class="w-full bg-green-600 text-white py-2 rounded font-bold">Hikayeyi Sete Ekle</button>
+                    </div>
+                    <div id="admin-stories-list" class="space-y-2 mt-4"></div>
+                </div>
+
+                <!-- 8. MESAJLAR (DMS) - AVATAR SEÇME ÖZELLİĞİ EKLENDİ -->
+                <div id="set-dms" class="settings-section hidden p-4 space-y-3">
+                    <div class="bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg border border-gray-300 dark:border-zinc-700 space-y-2">
+                        <span class="font-bold block">Sohbet Ekle</span>
+                        <input type="text" id="adm-dm-user" placeholder="Kişi" class="w-full p-2 rounded bg-white dark:bg-black">
+                        <input type="text" id="adm-dm-msg" placeholder="Mesaj Metni" class="w-full p-2 rounded bg-white dark:bg-black">
+                        
+                        <!-- Avatar Yükleme Alanı -->
+                        <div class="p-2 border border-dashed border-gray-400 rounded bg-white dark:bg-black text-[10px] flex items-center space-x-2">
+                            <label class="font-bold text-gray-500 w-16">Avatar:</label>
+                            <input type="file" accept="image/*" class="w-full text-[10px]" onchange="handleImageUpload(event, 'adm-dm-avatar')">
+                            <input type="hidden" id="adm-dm-avatar">
+                        </div>
+
+                        <div class="flex items-center space-x-2 text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <input type="checkbox" id="adm-dm-unread" checked class="w-4 h-4"> <label>Okunmadı (Mavi nokta çıkar)</label>
+                        </div>
+                        <button onclick="adminAddDM()" class="w-full bg-green-600 text-white py-2 rounded font-bold">Mesaj Ekle</button>
+                    </div>
+                    <div id="admin-dms-list" class="space-y-2 mt-4"></div>
+                </div>
+
+                <!-- POST EDIT VIEW (FULL DETAYLI ORTAK DÜZENLEME EKRANI) -->
+                <div id="admin-post-edit-view" class="hidden p-4 space-y-3 bg-gray-50 dark:bg-zinc-900 min-h-full">
+                    <div class="flex justify-between items-center border-b border-gray-300 dark:border-zinc-700 pb-2">
+                        <button onclick="closePostEditView()" class="font-bold text-red-500 text-sm"><i class="fa-solid fa-arrow-left"></i> İptal / Geri</button>
+                        <span class="font-bold" id="edit-post-title">Gönderi Düzenle</span>
+                    </div>
+                    
+                    <div class="space-y-2 bg-white dark:bg-zinc-800 p-3 rounded border border-gray-300 dark:border-zinc-700">
+                        <input type="hidden" id="edit-post-id">
+                        
+                        <div id="edit-user-container" class="space-y-3 border-b border-gray-300 dark:border-zinc-700 pb-3 mb-2">
+                            <div>
+                                <label class="block text-gray-500 text-xs mb-1">Paylaşan Kullanıcı Adı</label>
+                                <input type="text" id="edit-post-user" class="w-full p-2 rounded bg-gray-100 dark:bg-black font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-gray-500 text-xs mb-1">Kullanıcı Profil Fotoğrafı (Avatar)</label>
+                                <div class="flex space-x-2 items-center">
+                                    <img id="edit-post-avatar-preview" src="https://placehold.co/100x100/333/fff?text=Seç" class="w-8 h-8 rounded-full object-cover border border-gray-400 flex-shrink-0">
+                                    <input type="file" accept="image/*" class="w-full text-[10px]" onchange="handleImageUpload(event, 'edit-post-avatar')">
+                                    <input type="hidden" id="edit-post-avatar">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-500 text-xs mb-1">Gönderi Görseli</label>
+                            <div class="flex space-x-2 items-center">
+                                <img id="edit-post-preview" src="" class="w-12 h-12 rounded object-cover border border-gray-400">
+                                <input type="file" accept="image/*" class="w-full text-[10px]" onchange="handleImageUpload(event, 'edit-post-img')">
+                                <input type="hidden" id="edit-post-img">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-gray-500 text-xs mb-1">Beğeni Sayısı</label><input type="number" id="edit-post-likes" class="w-full p-2 rounded bg-gray-100 dark:bg-black"></div>
+                            <div><label class="block text-gray-500 text-xs mb-1">Süre (Örn: 2 saat önce)</label><input type="text" id="edit-post-time" class="w-full p-2 rounded bg-gray-100 dark:bg-black"></div>
+                        </div>
+                        <div><label class="block text-gray-500 text-xs mb-1">Konum</label><input type="text" id="edit-post-loc" class="w-full p-2 rounded bg-gray-100 dark:bg-black"></div>
+                        <div><label class="block text-gray-500 text-xs mb-1">Açıklama</label><textarea id="edit-post-cap" class="w-full p-2 rounded bg-gray-100 dark:bg-black h-12"></textarea></div>
+                        <button onclick="saveAdminPost()" class="w-full bg-ig-blue text-white py-2 rounded font-bold">Kaydet</button>
+                    </div>
+
+                    <div class="space-y-2 bg-white dark:bg-zinc-800 p-3 rounded border border-gray-300 dark:border-zinc-700" id="edit-post-comments-section">
+                        <h4 class="font-bold border-b border-gray-200 dark:border-zinc-700 pb-1 text-sm">Yorumlar</h4>
+                        <div class="flex space-x-2">
+                            <input type="text" id="new-comment-user" placeholder="Kişi" class="w-1/3 p-1.5 text-xs rounded bg-gray-100 dark:bg-black">
+                            <input type="text" id="new-comment-text" placeholder="Yorum metni..." class="flex-1 p-1.5 text-xs rounded bg-gray-100 dark:bg-black">
+                            <button onclick="addAdminComment()" class="bg-green-600 text-white px-2 rounded font-bold text-xs"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="edit-post-comments-list" class="space-y-1 mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== FRONTEND MODALS ==================== -->
+        
+        <!-- DM View -->
+        <div id="dm-modal" class="fixed inset-0 bg-white dark:bg-black z-40 hidden flex flex-col">
+            <div class="h-14 border-b border-gray-200 dark:border-ig-darkborder flex items-center justify-between px-4 sticky top-0 z-10 bg-white dark:bg-black">
+                <div class="flex items-center space-x-4">
+                    <button onclick="closeDirectMessages()" class="text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <span class="font-bold text-lg" id="dm-header-user">azat_official <i class="fa-solid fa-chevron-down text-xs ml-1 text-gray-500"></i></span>
+                </div>
+                <div class="text-xl flex space-x-4"><i class="fa-solid fa-video"></i><i class="fa-regular fa-pen-to-square"></i></div>
+            </div>
+            <div class="p-3"><input type="text" placeholder="Ara" class="w-full bg-gray-100 dark:bg-ig-darkcard text-sm rounded-lg px-4 py-2 focus:outline-none"></div>
+            <div class="px-4 py-2 font-bold text-sm">Mesajlar</div>
+            <div id="dm-list" class="flex-1 overflow-y-auto pb-10"></div>
+        </div>
+
+        <!-- Comments UI -->
+        <div id="comments-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex flex-col justify-end backdrop-blur-sm">
+            <div class="bg-white dark:bg-ig-darkcard rounded-t-2xl h-[70vh] flex flex-col w-full overflow-hidden">
+                <div class="py-3 border-b border-gray-200 dark:border-ig-darkborder text-center relative">
+                    <span class="font-bold text-sm">Yorumlar</span>
+                    <button onclick="closeCommentsModal()" class="absolute right-4 top-3 text-gray-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                <div class="p-3 border-t border-gray-200 dark:border-ig-darkborder flex items-center bg-white dark:bg-ig-darkcard">
+                    <img id="comment-my-avatar" src="" class="w-8 h-8 rounded-full object-cover mr-3 border border-gray-400">
+                    <input id="comment-input" type="text" placeholder="Yorum ekle..." class="flex-1 bg-gray-100 dark:bg-black text-sm px-4 py-2 rounded-full focus:outline-none">
+                    <button onclick="postCommentFrontend()" class="text-ig-blue font-bold text-sm ml-3">Paylaş</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Viewer -->
+        <div id="story-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between pb-6 text-white">
+            <div class="flex items-center space-x-1 pt-4 px-2 w-full absolute top-0 z-10" id="story-progress-container"></div>
+            <div class="flex items-center justify-between mt-8 px-3 z-10 absolute top-2 w-full">
+                <div class="flex items-center space-x-2">
+                    <img id="modal-story-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-white">
+                    <span id="modal-story-username" class="font-bold text-sm drop-shadow-md"></span>
+                    <span class="text-xs text-gray-300 drop-shadow-md">2s</span>
+                </div>
+                <button onclick="closeStoryModal()" class="text-2xl px-2 drop-shadow-md"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 relative flex items-center justify-center bg-zinc-900">
+                <img id="modal-story-img" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="flex items-center space-x-4 px-4 pt-4 pb-2 z-10 absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent">
+                <div class="flex-1 border border-gray-400 rounded-full px-4 py-3 text-sm text-gray-300">Mesaj gönder...</div>
+                <i class="fa-regular fa-heart text-2xl"></i>
+                <i class="fa-regular fa-paper-plane text-2xl"></i>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-4 py-2 rounded-full shadow-lg z-50 hidden transition-all"></div>
+    </div>
+
+    <script>
+        // GERÇEKÇİ STOK İNSAN FOTOĞRAFLARI OLAN SAHTE VERİTABANI
+        const DUMMY_DB = [
+            { user: "ahmet_yildiz", full: "Ahmet Yıldız", avatar: "https://randomuser.me/api/portraits/men/1.jpg", isTarget: false },
+            { user: "ali.koc", full: "Ali Koç", avatar: "https://randomuser.me/api/portraits/men/2.jpg", isTarget: false },
+            { user: "ayse.nur", full: "Ayşenur", avatar: "https://randomuser.me/api/portraits/women/1.jpg", isTarget: false },
+            { user: "berkcan_99", full: "Berkcan", avatar: "https://randomuser.me/api/portraits/men/3.jpg", isTarget: false },
+            { user: "cansu_kaya", full: "Cansu Kaya", avatar: "https://randomuser.me/api/portraits/women/2.jpg", isTarget: false },
+            { user: "cem.yilmaz", full: "Cem Yılmaz Fan", avatar: "https://randomuser.me/api/portraits/men/4.jpg", isTarget: false },
+            { user: "deniz_photography", full: "Deniz Fotoğrafçılık", avatar: "https://randomuser.me/api/portraits/women/3.jpg", isTarget: false },
+            { user: "eda.design", full: "Eda Tasarım", avatar: "https://randomuser.me/api/portraits/women/4.jpg", isTarget: false },
+            { user: "emre_gym", full: "Emre Fitness", avatar: "https://randomuser.me/api/portraits/men/5.jpg", isTarget: false },
+            { user: "fatma_g", full: "Fatma Gül", avatar: "https://randomuser.me/api/portraits/women/5.jpg", isTarget: false },
+            { user: "gizem.makeup", full: "Gizem Makyaj", avatar: "https://randomuser.me/api/portraits/women/6.jpg", isTarget: false },
+            { user: "hakan.official", full: "Hakan", avatar: "https://randomuser.me/api/portraits/men/6.jpg", isTarget: false },
+            { user: "irem.su", full: "İrem Su", avatar: "https://randomuser.me/api/portraits/women/7.jpg", isTarget: false },
+            { user: "kagan_bey", full: "Kağan", avatar: "https://randomuser.me/api/portraits/men/7.jpg", isTarget: false },
+            { user: "leyla_ile_mecnun", full: "Dizi Kesitleri", avatar: "https://randomuser.me/api/portraits/women/8.jpg", isTarget: false },
+            { user: "mert_can", full: "Mert Can", avatar: "https://randomuser.me/api/portraits/men/8.jpg", isTarget: false },
+            { user: "nazli_cafe", full: "Nazlı Cafe & Bistro", avatar: "https://randomuser.me/api/portraits/women/9.jpg", isTarget: false },
+            { user: "orhan_veli", full: "Şiir Sokakta", avatar: "https://randomuser.me/api/portraits/men/9.jpg", isTarget: false },
+            { user: "pelin_su", full: "Pelin Su", avatar: "https://randomuser.me/api/portraits/women/10.jpg", isTarget: false },
+            { user: "poyraz_karayel", full: "Poyraz", avatar: "https://randomuser.me/api/portraits/men/10.jpg", isTarget: false },
+            { user: "plan_b", full: "Plan B Organizasyon", avatar: "https://randomuser.me/api/portraits/women/11.jpg", isTarget: false },
+            { user: "plastik_makyaj", full: "Makyaj Stüdyosu", avatar: "https://randomuser.me/api/portraits/women/12.jpg", isTarget: false },
+            { user: "ruya_gibi", full: "Rüya Tabirleri", avatar: "https://randomuser.me/api/portraits/women/13.jpg", isTarget: false },
+            { user: "selin_moda", full: "Selin Butik", avatar: "https://randomuser.me/api/portraits/women/14.jpg", isTarget: false },
+            { user: "tolga_arslan", full: "Tolga Arslan", avatar: "https://randomuser.me/api/portraits/men/11.jpg", isTarget: false },
+            { user: "umut_yolcusu", full: "Umut", avatar: "https://randomuser.me/api/portraits/men/12.jpg", isTarget: false },
+            { user: "volkan.k", full: "Volkan", avatar: "https://randomuser.me/api/portraits/men/13.jpg", isTarget: false },
+            { user: "yasin_34", full: "Yasin", avatar: "https://randomuser.me/api/portraits/men/14.jpg", isTarget: false },
+            { user: "zeynep_y", full: "Zeynep", avatar: "https://randomuser.me/api/portraits/women/15.jpg", isTarget: false },
+            { user: "plaza.magazin", full: "Plaza Magazin", avatar: "https://randomuser.me/api/portraits/women/16.jpg", isTarget: false },
+            { user: "plaza.gurmesi", full: "Plaza Yemekleri", avatar: "https://randomuser.me/api/portraits/men/15.jpg", isTarget: false }
+        ];
+
+        // DEFAULT DATA 
+        const defaultData = {
+            notifications: { showHeartBadge: true },
+            profile: {
+                username: "azat_official", fullname: "Azat", bio: "Film seti anıları 🎬",
+                avatar: "https://randomuser.me/api/portraits/men/91.jpg",
+                postsCount: "3", followers: "45,2K", following: "112"
+            },
+            searchList: [
+                { id: 1, user: "plaza.perisi", full: "Plaza Perisi", avatar: "https://randomuser.me/api/portraits/women/44.jpg", isTarget: true }
+            ],
+            recentSearches: [],
+            targetProfile: {
+                username: "plaza.perisi", fullname: "Plaza Perisi", bio: "Plaza hayatı ve kahve molaları ☕️🏢",
+                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+                postsCount: "42", followers: "110K", following: "340",
+                isPrivate: true, followState: 0, 
+                gridImages: ["https://placehold.co/400/333/fff?text=1", "https://placehold.co/400/444/fff?text=2", "https://placehold.co/400/555/fff?text=3", "https://placehold.co/400/666/fff?text=4"]
+            },
+            activities: [
+                { id: 1, user: "yapim_ekibi", avatar: "https://randomuser.me/api/portraits/women/22.jpg", text: "seni takip etmeye başladı.", time: "10d" },
+                { id: 2, user: "yonetmen_mert", avatar: "https://randomuser.me/api/portraits/men/32.jpg", text: "fotoğrafını beğendi.", time: "1s" }
+            ],
+            stories: [
+                { id: 1, name: "yapim_ekibi", avatar: "https://randomuser.me/api/portraits/women/22.jpg", image: "https://placehold.co/600x1000/1e293b/fff?text=Cekim+Arasi", seen: false },
+                { id: 2, name: "yonetmen_mert", avatar: "https://randomuser.me/api/portraits/men/32.jpg", image: "https://placehold.co/600x1000/0f172a/fff?text=Kestik", seen: false }
+            ],
+            posts: [
+                { id: 1, username: "azat_official", avatar: "https://randomuser.me/api/portraits/men/91.jpg", location: "Kamera Arkası", image: "https://placehold.co/600x600/3b82f6/fff?text=Sahne+Motor", likes: 3420, isLiked: false, caption: "Yeni bir macera başlıyor. 🎬 #setgunlukleri", time: "10 dk önce", comments: [{ user: "yonetmen_mert", text: "Harika iş çıkarıyoruz!" }] },
+                { id: 2, username: "isik_sefi_ali", avatar: "https://randomuser.me/api/portraits/men/65.jpg", location: "Plato 3", image: "https://placehold.co/600x600/7c3aed/fff?text=Isik+Testi", likes: 850, isLiked: false, caption: "Işıklar hazır, sahne bizim. 💡", time: "1 saat önce", comments: [] },
+                { id: 3, username: "sanat_grubu", avatar: "https://randomuser.me/api/portraits/women/66.jpg", location: "Kulis", image: "https://placehold.co/600x600/10b981/fff?text=Dekor", likes: 1120, isLiked: false, caption: "Detaylar her şeydir. 🎨", time: "3 saat önce", comments: [] },
+                { id: 4, username: "azat_official", avatar: "https://randomuser.me/api/portraits/men/91.jpg", location: "Karaköy", image: "https://placehold.co/600x600/14b8a6/fff?text=Senaryo", likes: 5210, isLiked: true, caption: "Senaryo okumaları tam gaz devam. 📖", time: "5 saat önce", comments: [{ user: "yapim_ekibi", text: "Bekliyoruz!" }] }
+            ],
+            dms: [
+                { user: "yonetmen_mert", avatar: "https://randomuser.me/api/portraits/men/32.jpg", lastMsg: "Sahne hazır mı?", time: "Şimdi", unread: true }
+            ]
+        };
+
+        let appData = {};
+        let activeStoryTimer = null;
+        let activePostIdForComments = null;
+        let activeEditPostId = null;
+        let activeReturnTab = '';
+        let tapCount = 0;
+        let tapTimer = null;
+        let searchTimeout = null; 
+
+        window.onload = function() {
+            loadData();
+            document.documentElement.classList.add('dark');
+        };
+
+        // --- CORE & DATA ---
+        function loadData() {
+            const saved = localStorage.getItem('propFinalDBCut');
+            if (saved) {
+                appData = JSON.parse(saved);
+                if(!appData.searchList) appData.searchList = defaultData.searchList;
+                if(!appData.recentSearches) appData.recentSearches = [];
+                if(!appData.targetProfile) appData.targetProfile = defaultData.targetProfile;
+                if(!appData.activities) appData.activities = [];
+                if(!appData.notifications) appData.notifications = { showHeartBadge: false };
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData));
+            }
+            initSettingsInputs();
+            renderAll();
+        }
+
+        function saveData() {
+            localStorage.setItem('propFinalDBCut', JSON.stringify(appData));
+        }
+
+        function resetData() {
+            if(confirm("Tüm set verileri silinecek. Emin misin?")) {
+                localStorage.removeItem('propFinalDBCut');
+                loadData(); closeSettingsModal(); showToast("Sıfırlandı.");
+            }
+        }
+
+        // --- SECRET ADMIN TRIGGER & UTILS ---
+        function triggerSecretAdmin() {
+            tapCount++;
+            if (tapCount >= 3) {
+                document.getElementById('settings-modal').classList.remove('hidden');
+                setTimeout(() => { document.getElementById('settings-modal').classList.remove('translate-y-full'); }, 10);
+                tapCount = 0;
+            }
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+        }
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('translate-y-full');
+            setTimeout(() => { document.getElementById('settings-modal').classList.add('hidden'); }, 300);
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err => showToast(`Hata: ${err.message}`)); } 
+            else { if (document.exitFullscreen) document.exitFullscreen(); }
+        }
+        
+        function handleImageUpload(event, targetInputId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(targetInputId).value = e.target.result;
+                    if(targetInputId === 'inp-avatar') updateProfileLive();
+                    if(targetInputId === 'edit-post-img') document.getElementById('edit-post-preview').src = e.target.result;
+                    if(targetInputId === 'edit-post-avatar') document.getElementById('edit-post-avatar-preview').src = e.target.result;
+                    if(targetInputId === 'tp-inp-avatar') updateTargetProfileLive();
+                    showToast("Görsel Yüklendi!");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- RENDERING OMNIBUS ---
+        function renderAll() {
+            renderProfile(); renderStories(); renderFeed(); renderActivity(); renderDMs(); 
+            renderSearchList(''); renderTargetProfile(); renderSettingsLists();
+            
+            const dmBadge = document.getElementById('dm-badge');
+            const unreadDms = appData.dms.filter(d => d.unread).length;
+            if(unreadDms > 0) { dmBadge.innerText = unreadDms; dmBadge.classList.remove('hidden'); } else { dmBadge.classList.add('hidden'); }
+
+            const topHeart = document.getElementById('top-heart-badge');
+            const bottomHeart = document.getElementById('bottom-heart-badge');
+            if (appData.notifications.showHeartBadge) {
+                topHeart.classList.remove('hidden'); bottomHeart.classList.remove('hidden');
+            } else {
+                topHeart.classList.add('hidden'); bottomHeart.classList.add('hidden');
+            }
+        }
+
+        function initSettingsInputs() {
+            document.getElementById('inp-username').value = appData.profile.username;
+            document.getElementById('inp-fullname').value = appData.profile.fullname;
+            document.getElementById('inp-bio').value = appData.profile.bio;
+            document.getElementById('inp-pcount').value = appData.profile.postsCount;
+            document.getElementById('inp-followers').value = appData.profile.followers;
+            document.getElementById('inp-following').value = appData.profile.following;
+            document.getElementById('adm-notif-heart').checked = appData.notifications.showHeartBadge;
+
+            document.getElementById('tp-inp-user').value = appData.targetProfile.username;
+            document.getElementById('tp-inp-full').value = appData.targetProfile.fullname;
+            document.getElementById('tp-inp-bio').value = appData.targetProfile.bio;
+            document.getElementById('tp-inp-pcount').value = appData.targetProfile.postsCount;
+            document.getElementById('tp-inp-fwer').value = appData.targetProfile.followers;
+            document.getElementById('tp-inp-fwing').value = appData.targetProfile.following;
+            document.getElementById('adm-tp-private').checked = appData.targetProfile.isPrivate;
+            document.getElementById('adm-tp-state').value = appData.targetProfile.followState;
+        }
+
+        // ================= 1. KUSURSUZ ORGANİK ARAMA SİSTEMİ =================
+        function clearRecentSearches() {
+            appData.recentSearches = [];
+            saveData();
+            renderSearchList('');
+            showToast('Tüm geçmiş temizlendi');
+        }
+
+        function removeRecentSearch(username) {
+            appData.recentSearches = appData.recentSearches.filter(r => r.user !== username);
+            saveData();
+            renderSearchList('');
+            showToast('Geçmişten silindi');
+        }
+
+        function handleFrontendSearch() {
+            const query = document.getElementById('frontend-search-input').value.trim();
+            const container = document.getElementById('search-results-container');
+            const clearBtn = document.getElementById('search-clear-btn');
+            
+            if (query.length > 0) {
+                container.innerHTML = `<div class="flex justify-center py-6"><i class="fa-solid fa-spinner fa-spin text-gray-400 text-xl"></i></div>`;
+                document.getElementById('search-header-text').innerText = 'Sonuçlar';
+                clearBtn.classList.add('hidden');
+            } else {
+                document.getElementById('search-header-text').innerText = 'Yakınlardakiler';
+                if (appData.recentSearches.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+                
+                renderSearchList('');
+                return;
+            }
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { renderSearchList(query); }, 150);
+        }
+        
+        function renderSearchList(query = '') {
+            query = query.toLowerCase();
+            let results = [];
+            let isRecent = !query;
+
+            if (isRecent) {
+                results = appData.recentSearches || [];
+                const clearBtn = document.getElementById('search-clear-btn');
+                if (results.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            } else {
+                let combinedDB = [...appData.searchList, ...DUMMY_DB];
+                let matched = combinedDB.filter(r => r.user.toLowerCase().includes(query) || (r.full && r.full.toLowerCase().includes(query)));
+                matched.sort((a, b) => (b.isTarget ? 1 : 0) - (a.isTarget ? 1 : 0));
+                results = matched.slice(0, 15);
+            }
+
+            const container = document.getElementById('search-results-container');
+
+            if (results.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 text-sm mt-8">${isRecent ? 'Yakınlarda arama yok.' : 'Sonuç bulunamadı.'}</div>`;
+                return;
+            }
+
+            container.innerHTML = results.map(r => `
+                <div class="flex items-center space-x-3 px-4 py-3 active:bg-gray-200 dark:active:bg-zinc-800 transition cursor-pointer" 
+                     onclick="handleSearchResultClick('${r.user}')">
+                    <div class="w-14 h-14 rounded-full p-[1px] border border-gray-300 dark:border-zinc-700 flex-shrink-0">
+                        <img src="${r.avatar}" class="w-full h-full rounded-full object-cover">
+                    </div>
+                    <div class="flex-1 overflow-hidden">
+                        <span class="block font-bold text-sm leading-tight truncate">${r.user}</span>
+                        <span class="block text-gray-500 text-sm leading-tight truncate">${r.full}</span>
+                    </div>
+                    ${isRecent ? `<button onclick="event.stopPropagation(); removeRecentSearch('${r.user}');" class="text-gray-400 p-2 active:scale-90 transition text-lg"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function handleSearchResultClick(username) {
+            const item = [...appData.searchList, ...DUMMY_DB].find(x => x.user === username);
+            if (!item) return;
+
+            if (!appData.recentSearches) appData.recentSearches = [];
+            appData.recentSearches = appData.recentSearches.filter(r => r.user !== username);
+            appData.recentSearches.unshift(item);
+            
+            if (appData.recentSearches.length > 10) appData.recentSearches.pop();
+            saveData();
+
+            if (item.isTarget) { switchTab('target-profile'); } 
+            else { showToast("Bu profile erişilemiyor."); }
+        }
+
+        function adminAddSearchResult() {
+            const user = document.getElementById('adm-srch-user').value;
+            const full = document.getElementById('adm-srch-full').value || "";
+            const avatar = document.getElementById('adm-srch-img').value || `https://randomuser.me/api/portraits/women/${Math.floor(Math.random()*90)}.jpg`;
+            const isTarget = document.getElementById('adm-srch-istarget').checked;
+            if(!user) return showToast("Kullanıcı adı gerekli!");
+            appData.searchList.unshift({ id: Date.now(), user, full, avatar, isTarget });
+            document.getElementById('adm-srch-img').value = '';
+            saveData(); renderAll(); showToast("Arama sonucuna hedef eklendi");
+        }
+        // ===========================================================
+
+        // --- 2. TARGET PROFILE SYSTEM ---
+        function updateTargetProfileLive() {
+            const tp = appData.targetProfile;
+            tp.username = document.getElementById('tp-inp-user').value;
+            tp.fullname = document.getElementById('tp-inp-full').value;
+            tp.bio = document.getElementById('tp-inp-bio').value;
+            tp.postsCount = document.getElementById('tp-inp-pcount').value;
+            tp.followers = document.getElementById('tp-inp-fwer').value;
+            tp.following = document.getElementById('tp-inp-fwing').value;
+            tp.isPrivate = document.getElementById('adm-tp-private').checked;
+            tp.followState = parseInt(document.getElementById('adm-tp-state').value);
+            const avatar = document.getElementById('tp-inp-avatar').value;
+            if(avatar) tp.avatar = avatar;
+            saveData(); renderTargetProfile();
+        }
+
+        function renderTargetProfile() {
+            const tp = appData.targetProfile;
+            document.getElementById('tp-username-header').innerText = tp.username;
+            document.getElementById('tp-avatar').src = tp.avatar;
+            document.getElementById('tp-posts-count').innerText = tp.postsCount;
+            document.getElementById('tp-followers-count').innerText = tp.followers;
+            document.getElementById('tp-following-count').innerText = tp.following;
+            document.getElementById('tp-fullname').innerText = tp.fullname;
+            document.getElementById('tp-bio').innerText = tp.bio;
+
+            const actionsDiv = document.getElementById('tp-action-buttons');
+            if (tp.followState === 0) {
+                actionsDiv.innerHTML = `
+                    <button onclick="actorClickFollow()" class="flex-1 bg-ig-blue text-white text-sm font-bold py-1.5 rounded-lg active:scale-95 transition">Takip Et</button>
+                    <button class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-black dark:text-white text-sm font-semibold py-1.5 rounded-lg active:scale-95 transition">Mesaj</button>
+                    <button class="bg-gray-200 dark:bg-ig-darkcard px-3 rounded-lg"><i class="fa-solid fa-user-plus text-sm"></i></button>
+                `;
+            } else if (tp.followState === 1) {
+                actionsDiv.innerHTML = `
+                    <button onclick="actorClickFollow()" class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-black dark:text-white text-sm font-semibold py-1.5 rounded-lg border border-gray-300 dark:border-ig-darkborder active:scale-95 transition">İstek Gönderildi</button>
+                    <button class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-black dark:text-white text-sm font-semibold py-1.5 rounded-lg active:scale-95 transition">Mesaj</button>
+                `;
+            } else {
+                actionsDiv.innerHTML = `
+                    <button onclick="actorClickFollow()" class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-black dark:text-white text-sm font-semibold py-1.5 rounded-lg border border-gray-300 dark:border-ig-darkborder active:scale-95 transition">Takip Ediliyor <i class="fa-solid fa-chevron-down text-xs ml-1"></i></button>
+                    <button class="flex-1 bg-gray-200 dark:bg-ig-darkcard text-black dark:text-white text-sm font-semibold py-1.5 rounded-lg active:scale-95 transition">Mesaj</button>
+                `;
+            }
+
+            const contentArea = document.getElementById('tp-content-area');
+            if (tp.isPrivate && tp.followState !== 2) {
+                contentArea.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-10 text-center px-4">
+                        <div class="w-16 h-16 rounded-full border-2 border-black dark:border-white flex items-center justify-center mb-4"><i class="fa-solid fa-lock text-3xl"></i></div>
+                        <h3 class="font-bold text-sm mb-1">Bu Hesap Gizli</h3>
+                        <p class="text-xs text-gray-500">Fotoğraf ve videolarını görmek için takip et.</p>
+                    </div>
+                `;
+            } else {
+                contentArea.innerHTML = `
+                    <div class="grid grid-cols-3 gap-0.5 w-full">
+                        ${tp.gridImages.map(img => `<div class="aspect-square bg-gray-200 dark:bg-zinc-800"><img src="${img}" class="w-full h-full object-cover"></div>`).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function actorClickFollow() {
+            const tp = appData.targetProfile;
+            if (tp.followState === 0) { tp.followState = tp.isPrivate ? 1 : 2; } 
+            else { tp.followState = 0; }
+            document.getElementById('adm-tp-state').value = tp.followState; 
+            saveData(); renderTargetProfile();
+        }
+
+        function addTPGridImage() {
+            const img = document.getElementById('tp-new-post-img').value;
+            if(img) {
+                appData.targetProfile.gridImages.unshift(img);
+                document.getElementById('tp-new-post-img').value = '';
+                saveData(); renderAll(); showToast("Foto ızgaraya eklendi");
+            }
+        }
+
+        // --- 3. MAIN PROFILE (KENDİ PROFİLİMİZ) ---
+        function updateProfileLive() {
+            appData.profile.username = document.getElementById('inp-username').value;
+            appData.profile.fullname = document.getElementById('inp-fullname').value;
+            appData.profile.bio = document.getElementById('inp-bio').value;
+            appData.profile.postsCount = document.getElementById('inp-pcount').value;
+            const avatarVal = document.getElementById('inp-avatar').value;
+            if(avatarVal) appData.profile.avatar = avatarVal;
+            appData.profile.followers = document.getElementById('inp-followers').value;
+            appData.profile.following = document.getElementById('inp-following').value;
+            saveData(); renderProfile();
+        }
+
+        function renderProfile() {
+            document.getElementById('profile-username-header').innerText = appData.profile.username;
+            document.getElementById('dm-header-user').innerHTML = `${appData.profile.username} <i class="fa-solid fa-chevron-down text-xs ml-1 text-gray-500"></i>`;
+            document.getElementById('profile-avatar-img').src = appData.profile.avatar;
+            document.getElementById('nav-avatar-img').src = appData.profile.avatar;
+            document.getElementById('feed-my-avatar').src = appData.profile.avatar;
+            document.getElementById('comment-my-avatar').src = appData.profile.avatar;
+            document.getElementById('profile-fullname').innerText = appData.profile.fullname;
+            document.getElementById('profile-bio-text').innerText = appData.profile.bio;
+            document.getElementById('profile-posts-count').innerText = appData.profile.postsCount;
+            document.getElementById('profile-followers-count').innerText = appData.profile.followers;
+            document.getElementById('profile-following-count').innerText = appData.profile.following;
+            
+            const profilePosts = appData.posts.filter(p => p.username === appData.profile.username);
+            document.getElementById('profile-grid-container').innerHTML = profilePosts.map(p => `
+                <div class="aspect-square bg-gray-200 dark:bg-zinc-800 overflow-hidden"><img src="${p.image}" class="w-full h-full object-cover"></div>
+            `).join('');
+        }
+
+        // --- 4. STORIES ---
+        function renderStories() {
+            document.getElementById('stories-tray-container').innerHTML = appData.stories.map(story => `
+                <div class="flex flex-col items-center flex-shrink-0 cursor-pointer" onclick="openStory(${story.id})">
+                    <div class="relative w-16 h-16 rounded-full p-[2px] ${story.seen ? 'bg-gray-400 dark:bg-zinc-800' : 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600'}">
+                        <img src="${story.avatar}" class="w-full h-full object-cover rounded-full border-2 border-white dark:border-black p-0.5">
+                    </div>
+                    <span class="text-xs mt-1 truncate w-16 text-center ${story.seen ? 'text-gray-500' : ''}">${story.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // --- 5. FEED (ANA AKIŞ) ---
+        function renderFeed() {
+            document.getElementById('posts-feed-container').innerHTML = appData.posts.map(post => `
+                <article class="bg-white dark:bg-black pt-2 pb-4">
+                    <div class="flex items-center justify-between px-3 py-2.5">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-full p-[1px] bg-gradient-to-tr from-yellow-400 to-purple-600"><img src="${post.avatar}" class="w-full h-full rounded-full object-cover border border-black"></div>
+                            <div>
+                                <span class="font-bold text-sm block leading-tight">${post.username}</span>
+                                <span class="text-[11px] text-gray-500 block leading-tight">${post.location || ''}</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-ellipsis text-gray-500"></i>
+                    </div>
+                    <div class="w-full relative max-h-[500px] overflow-hidden flex items-center justify-center bg-zinc-900" ondblclick="toggleLike(${post.id})">
+                        <img src="${post.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="px-3 pt-3 pb-1 flex justify-between items-center text-2xl">
+                        <div class="flex space-x-4">
+                            <button onclick="toggleLike(${post.id})"><i class="${post.isLiked ? 'fa-solid fa-heart text-red-500 animate-heart' : 'fa-regular fa-heart'}"></i></button>
+                            <button onclick="openCommentsModal(${post.id})"><i class="fa-regular fa-comment fa-flip-horizontal"></i></button>
+                            <i class="fa-regular fa-paper-plane"></i>
+                        </div>
+                        <i class="fa-regular fa-bookmark"></i>
+                    </div>
+                    <div class="px-3 font-bold text-sm mb-1">${post.likes.toLocaleString()} beğenme</div>
+                    <div class="px-3 text-sm mb-1"><span class="font-bold mr-1">${post.username}</span><span>${post.caption}</span></div>
+                    ${post.comments.length > 0 ? `<div class="px-3 text-sm text-gray-500 mb-1 cursor-pointer" onclick="openCommentsModal(${post.id})">${post.comments.length} yorumun tümünü gör</div>` : ''}
+                    <div class="px-3 text-[10px] text-gray-500 uppercase">${post.time || 'Şimdi'}</div>
+                </article>
+            `).join('');
+        }
+
+        function toggleLike(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            if (post) { post.isLiked = !post.isLiked; post.likes += post.isLiked ? 1 : -1; saveData(); renderFeed(); }
+        }
+
+        // --- 6. ACTIVITY & DMS ---
+        function renderActivity() {
+            document.getElementById('activity-list').innerHTML = appData.activities.map(a => `
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+                    <div class="flex items-center space-x-3">
+                        <img src="${a.avatar}" class="w-10 h-10 rounded-full object-cover">
+                        <div class="text-sm">
+                            <span class="font-bold">${a.user}</span> <span>${a.text}</span>
+                            <span class="text-gray-500 ml-1">${a.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDMs() {
+            document.getElementById('dm-list').innerHTML = appData.dms.map((d, i) => `
+                <div class="flex items-center justify-between px-4 py-3 active:bg-zinc-900" onclick="markDMRead(${i})">
+                    <div class="flex items-center space-x-3">
+                        <img src="${d.avatar}" class="w-14 h-14 rounded-full object-cover">
+                        <div>
+                            <span class="text-sm block ${d.unread ? 'font-bold' : 'font-semibold'}">${d.user}</span>
+                            <span class="text-sm block ${d.unread ? 'text-white font-semibold' : 'text-gray-500'}">${d.lastMsg} · ${d.time}</span>
+                        </div>
+                    </div>
+                    ${d.unread ? '<div class="w-2.5 h-2.5 bg-ig-blue rounded-full"></div>' : '<i class="fa-solid fa-camera text-gray-500 text-xl"></i>'}
+                </div>
+            `).join('');
+        }
+        function markDMRead(index) { appData.dms[index].unread = false; saveData(); renderAll(); }
+
+        // --- 7. ADMIN LIST RENDERING ---
+        function renderSettingsLists() {
+            document.getElementById('admin-search-list').innerHTML = appData.searchList.map((r, i) => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <div class="flex items-center space-x-2"><img src="${r.avatar}" class="w-6 h-6 rounded-full object-cover"><span class="font-bold text-xs truncate w-24">${r.user}</span> <span class="text-[10px] text-gray-500">${r.isTarget ? '(Hedef)' : ''}</span></div>
+                    <button onclick="appData.searchList.splice(${i},1); saveData(); renderAll();" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            document.getElementById('tp-admin-grid-list').innerHTML = appData.targetProfile.gridImages.map((img, i) => `
+                <div class="relative aspect-square">
+                    <img src="${img}" class="w-full h-full object-cover rounded">
+                    <button onclick="appData.targetProfile.gridImages.splice(${i},1); saveData(); renderAll();" class="absolute top-0 right-0 bg-red-600 text-white rounded-bl p-1 text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+
+            const feedPosts = appData.posts.filter(p => p.username !== appData.profile.username);
+            const myPosts = appData.posts.filter(p => p.username === appData.profile.username);
+
+            document.getElementById('admin-feed-posts-list').innerHTML = feedPosts.map(p => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <div class="flex items-center space-x-2 overflow-hidden"><img src="${p.image}" class="w-8 h-8 object-cover rounded"><span class="truncate w-32 font-bold text-xs">${p.username}</span></div>
+                    <div class="flex space-x-3 text-sm">
+                        <button onclick="openPostEditView(${p.id}, 'feed')" class="text-ig-blue font-bold"><i class="fa-solid fa-pen"></i> Düzenle</button>
+                        <button onclick="deleteItem('post', ${p.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-my-posts-list').innerHTML = myPosts.map(p => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <div class="flex items-center space-x-2 overflow-hidden"><img src="${p.image}" class="w-8 h-8 object-cover rounded"><span class="truncate w-32 font-bold text-xs">${p.username}</span></div>
+                    <div class="flex space-x-3 text-sm">
+                        <button onclick="openPostEditView(${p.id}, 'myposts')" class="text-ig-blue font-bold"><i class="fa-solid fa-pen"></i> Düzenle</button>
+                        <button onclick="deleteItem('post', ${p.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-notif-list').innerHTML = appData.activities.map((a, i) => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <span class="truncate text-xs"><span class="font-bold">${a.user}</span> ${a.text}</span>
+                    <button onclick="deleteItem('activity', ${i})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-stories-list').innerHTML = appData.stories.map(s => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <span>${s.name}</span><button onclick="deleteItem('story', ${s.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-dms-list').innerHTML = appData.dms.map((d, i) => `
+                <div class="flex items-center justify-between bg-white dark:bg-black p-2 rounded border border-gray-300 dark:border-zinc-700">
+                    <div class="flex items-center space-x-2 overflow-hidden">
+                        <img src="${d.avatar}" class="w-6 h-6 rounded-full object-cover">
+                        <span class="truncate w-36 text-xs">${d.user}: ${d.lastMsg}</span>
+                    </div>
+                    <button onclick="deleteItem('dm', ${i})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        // --- 8. POST EDIT & COMMENTS ADMIN ---
+        function openPostEditView(postId, returnTab) {
+            activeReturnTab = returnTab;
+            document.querySelectorAll('.settings-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('admin-post-edit-view').classList.remove('hidden');
+            
+            if (postId === null) {
+                activeEditPostId = null;
+                document.getElementById('edit-post-title').innerText = "Yeni Gönderi Ekle";
+                
+                if(returnTab === 'myposts') {
+                    document.getElementById('edit-post-user').value = appData.profile.username;
+                    document.getElementById('edit-user-container').classList.add('hidden');
+                } else {
+                    document.getElementById('edit-post-user').value = "kullanici_adi";
+                    document.getElementById('edit-user-container').classList.remove('hidden');
+                    document.getElementById('edit-post-avatar').value = '';
+                    document.getElementById('edit-post-avatar-preview').src = 'https://placehold.co/100x100/333/fff?text=Seç';
+                }
+                
+                document.getElementById('edit-post-img').value = '';
+                document.getElementById('edit-post-preview').src = 'https://placehold.co/100x100/333/fff?text=Sec';
+                document.getElementById('edit-post-likes').value = 100;
+                document.getElementById('edit-post-time').value = 'Şimdi';
+                document.getElementById('edit-post-loc').value = 'Film Seti';
+                document.getElementById('edit-post-cap').value = '';
+                document.getElementById('edit-post-comments-section').classList.add('hidden'); 
+            } else {
+                activeEditPostId = postId;
+                const post = appData.posts.find(p => p.id === postId);
+                document.getElementById('edit-post-title').innerText = "Gönderiyi Düzenle";
+                document.getElementById('edit-post-user').value = post.username;
+                
+                if(post.username === appData.profile.username) {
+                    document.getElementById('edit-user-container').classList.add('hidden');
+                } else {
+                    document.getElementById('edit-user-container').classList.remove('hidden');
+                    document.getElementById('edit-post-avatar').value = post.avatar;
+                    document.getElementById('edit-post-avatar-preview').src = post.avatar;
+                }
+                
+                document.getElementById('edit-post-img').value = post.image;
+                document.getElementById('edit-post-preview').src = post.image;
+                document.getElementById('edit-post-likes').value = post.likes;
+                document.getElementById('edit-post-time').value = post.time || '2 saat önce';
+                document.getElementById('edit-post-loc').value = post.location;
+                document.getElementById('edit-post-cap').value = post.caption;
+                
+                document.getElementById('edit-post-comments-section').classList.remove('hidden');
+                renderAdminComments();
+            }
+        }
+
+        function closePostEditView() {
+            document.getElementById('admin-post-edit-view').classList.add('hidden');
+            document.getElementById(`set-${activeReturnTab}`).classList.remove('hidden');
+        }
+
+        function saveAdminPost() {
+            const user = document.getElementById('edit-post-user').value || appData.profile.username;
+            const img = document.getElementById('edit-post-img').value;
+            const likes = parseInt(document.getElementById('edit-post-likes').value) || 0;
+            const time = document.getElementById('edit-post-time').value || 'Şimdi';
+            const loc = document.getElementById('edit-post-loc').value || '';
+            const cap = document.getElementById('edit-post-cap').value || '';
+
+            if(!img) return showToast('Lütfen Görsel Seçin!');
+
+            let avatarUrl = 'https://placehold.co/150/555/fff';
+            if (user === appData.profile.username) {
+                avatarUrl = appData.profile.avatar;
+            } else {
+                const customAvatar = document.getElementById('edit-post-avatar').value;
+                if (customAvatar) {
+                    avatarUrl = customAvatar;
+                } else if (activeEditPostId !== null) {
+                    const oldPost = appData.posts.find(p => p.id === activeEditPostId);
+                    if (oldPost) avatarUrl = oldPost.avatar;
+                } else {
+                    avatarUrl = `https://randomuser.me/api/portraits/women/${Math.floor(Math.random()*90)}.jpg`;
+                }
+            }
+
+            if (activeEditPostId === null) {
+                appData.posts.unshift({
+                    id: Date.now(), username: user, avatar: avatarUrl, location: loc,
+                    image: img, likes: likes, isLiked: false, caption: cap, time: time, comments: []
+                });
+                showToast('Gönderi Eklendi!');
+            } else {
+                const post = appData.posts.find(p => p.id === activeEditPostId);
+                post.username = user; post.avatar = avatarUrl; post.image = img;
+                post.likes = likes; post.time = time; post.location = loc; post.caption = cap;
+                showToast('Gönderi Güncellendi!');
+            }
+            saveData(); renderAll(); closePostEditView();
+        }
+
+        function renderAdminComments() {
+            const post = appData.posts.find(p => p.id === activeEditPostId);
+            const list = document.getElementById('edit-post-comments-list');
+            if (post.comments.length === 0) {
+                list.innerHTML = `<div class="text-xs text-gray-500">Henüz yorum yok.</div>`; return;
+            }
+            list.innerHTML = post.comments.map((c, i) => `
+                <div class="flex justify-between items-start bg-gray-100 dark:bg-black p-1.5 rounded">
+                    <div class="text-xs"><span class="font-bold">${c.user}</span> ${c.text}</div>
+                    <button onclick="deleteAdminComment(${i})" class="text-red-500 ml-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addAdminComment() {
+            const user = document.getElementById('new-comment-user').value || 'hayran_1';
+            const text = document.getElementById('new-comment-text').value;
+            if(!text) return;
+            appData.posts.find(p => p.id === activeEditPostId).comments.push({ user: user, text: text });
+            document.getElementById('new-comment-text').value = '';
+            saveData(); renderAll(); renderAdminComments();
+        }
+
+        function deleteAdminComment(index) {
+            appData.posts.find(p => p.id === activeEditPostId).comments.splice(index, 1);
+            saveData(); renderAll(); renderAdminComments();
+        }
+
+        // --- 9. ADMIN OTHERS (NOTIF, STORY, DM) ---
+        function adminAddActivity() {
+            const user = document.getElementById('adm-notif-user').value || 'yeni_kullanici';
+            const txt = document.getElementById('adm-notif-text').value || 'fotoğrafını beğendi.';
+            const time = document.getElementById('adm-notif-time').value || '1s';
+            appData.activities.unshift({ id: Date.now(), user: user, avatar: `https://randomuser.me/api/portraits/women/${Math.floor(Math.random()*90)}.jpg`, text: txt, time: time });
+            appData.notifications.showHeartBadge = true;
+            document.getElementById('adm-notif-heart').checked = true;
+            saveData(); renderAll(); showToast('Bildirim Gönderildi!');
+        }
+
+        function adminAddStory() {
+            const user = document.getElementById('adm-story-user').value || 'rol_arkadasi';
+            const avatar = document.getElementById('adm-story-avatar').value || `https://randomuser.me/api/portraits/women/${Math.floor(Math.random()*90)}.jpg`;
+            const img = document.getElementById('adm-story-img').value;
+            if(!img) return showToast('Lütfen Hikaye Görseli Seçin!');
+            appData.stories.unshift({ id: Date.now(), name: user, avatar: avatar, image: img, seen: false });
+            document.getElementById('adm-story-img').value = '';
+            saveData(); renderAll(); showToast('Hikaye eklendi!');
+        }
+
+        function adminAddDM() {
+            const user = document.getElementById('adm-dm-user').value || 'gizli_numara';
+            const msg = document.getElementById('adm-dm-msg').value || 'Selam!';
+            const avatar = document.getElementById('adm-dm-avatar').value || `https://randomuser.me/api/portraits/women/${Math.floor(Math.random()*90)}.jpg`;
+            const unread = document.getElementById('adm-dm-unread').checked;
+            
+            appData.dms.unshift({ user: user, avatar: avatar, lastMsg: msg, time: 'Şimdi', unread: unread });
+            document.getElementById('adm-dm-avatar').value = '';
+            saveData(); renderAll(); showToast('Mesaj eklendi!');
+        }
+
+        function deleteItem(type, id) {
+            if(type === 'post') appData.posts = appData.posts.filter(p => p.id !== id);
+            if(type === 'story') appData.stories = appData.stories.filter(s => s.id !== id);
+            if(type === 'dm') appData.dms.splice(id, 1);
+            if(type === 'activity') appData.activities.splice(id, 1);
+            saveData(); renderAll();
+        }
+
+        // --- 10. FRONTEND MODALS ---
+        function openCommentsModal(postId) {
+            activePostIdForComments = postId;
+            const post = appData.posts.find(p => p.id === postId);
+            const list = document.getElementById('comments-list');
+            if(post.comments.length > 0) {
+                list.innerHTML = post.comments.map((c, idx) => `
+                    <div class="flex items-start space-x-3 mb-4 text-sm">
+                        <img src="https://randomuser.me/api/portraits/women/${Math.abs((idx+10)*5 % 90)}.jpg" class="w-8 h-8 rounded-full object-cover">
+                        <div><span class="font-bold mr-1">${c.user}</span><span>${c.text}</span></div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">Henüz yorum yok.<br>İlk yorumu sen yap.</div>`;
+            }
+            document.getElementById('comments-modal').classList.remove('hidden');
+        }
+        function closeCommentsModal() { document.getElementById('comments-modal').classList.add('hidden'); }
+        
+        function postCommentFrontend() {
+            const input = document.getElementById('comment-input');
+            const txt = input.value.trim();
+            if(txt && activePostIdForComments) {
+                appData.posts.find(p => p.id === activePostIdForComments).comments.push({ user: appData.profile.username, text: txt });
+                input.value = ''; saveData(); renderFeed(); openCommentsModal(activePostIdForComments);
+            }
+        }
+
+        function openStory(id) {
+            const s = appData.stories.find(x => x.id === id);
+            if (!s) return;
+            s.seen = true; saveData(); renderStories();
+            document.getElementById('modal-story-avatar').src = s.avatar;
+            document.getElementById('modal-story-username').innerText = s.name;
+            document.getElementById('modal-story-img').src = s.image;
+            document.getElementById('story-modal').classList.remove('hidden');
+            
+            const pCont = document.getElementById('story-progress-container');
+            pCont.innerHTML = `<div class="bg-white/30 h-0.5 w-full rounded overflow-hidden"><div id="story-prog" class="bg-white h-full w-0"></div></div>`;
+            setTimeout(() => { document.getElementById('story-prog').style.transition = "width 4s linear"; document.getElementById('story-prog').style.width = "100%"; }, 50);
+
+            clearTimeout(activeStoryTimer);
+            activeStoryTimer = setTimeout(() => { closeStoryModal(); }, 4000);
+        }
+        function closeStoryModal() {
+            document.getElementById('story-modal').classList.add('hidden');
+            clearTimeout(activeStoryTimer);
+        }
+
+        // --- 11. UI TAB NAVIGATION ---
+        function switchSettingsTab(tabName) {
+            document.querySelectorAll('.settings-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('admin-post-edit-view').classList.add('hidden'); 
+            document.getElementById(`set-${tabName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                btn.classList.remove('border-b-2', 'border-red-600', 'text-red-600');
+                btn.classList.add('text-gray-500');
+            });
+            const activeBtn = document.querySelector(`.settings-tab-btn[data-target="set-${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('border-b-2', 'border-red-600', 'text-red-600');
+                activeBtn.classList.remove('text-gray-500');
+                activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-black', 'dark:text-white');
+                btn.classList.add('text-gray-500');
+            });
+            const activeBtn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-black', 'dark:text-white');
+                activeBtn.classList.remove('text-gray-500');
+            }
+
+            if(tabName === 'activity' && appData.notifications.showHeartBadge) {
+                appData.notifications.showHeartBadge = false;
+                document.getElementById('adm-notif-heart').checked = false;
+                saveData(); renderAll();
+            }
+            if(tabName === 'search') {
+                const input = document.getElementById('frontend-search-input');
+                input.value = '';
+                renderSearchList(''); 
+            }
+        }
+
+        function openDirectMessages() { document.getElementById('dm-modal').classList.remove('hidden'); }
+        function closeDirectMessages() { document.getElementById('dm-modal').classList.add('hidden'); }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+        
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2000);
+        }
+    </script>
+</body>
+</html>
